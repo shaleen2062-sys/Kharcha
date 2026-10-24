@@ -20,14 +20,12 @@ class SignupPage extends ConsumerStatefulWidget {
 
 class _SignupPageState extends ConsumerState<SignupPage> {
   final _formKey = GlobalKey<FormState>();
-  final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
 
   @override
   void dispose() {
-    _name.dispose();
     _email.dispose();
     _password.dispose();
     _confirm.dispose();
@@ -38,11 +36,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
     // On success Firebase signs the user in, and the auth guard opens the home screen.
-    await ref.read(authControllerProvider.notifier).signUp(
-          _email.text,
-          _password.text,
-          displayName: _name.text,
-        );
+    await ref
+        .read(authControllerProvider.notifier)
+        .signUp(_email.text, _password.text);
   }
 
   @override
@@ -72,21 +68,21 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const OfflineBanner(message: 'You are offline. Creating an account needs a connection.'),
-                      const SizedBox(height: 8),
-                      Text('Create your account', style: AppTextStyles.display.copyWith(fontSize: 30)),
-                      const SizedBox(height: 8),
-                      Text('It takes under a minute.', style: AppTextStyles.caption),
-                      const SizedBox(height: 28),
-                      AppTextField(
-                        controller: _name,
-                        label: 'Name (optional)',
-                        keyboardType: TextInputType.name,
-                        textInputAction: TextInputAction.next,
-                        autofillHints: const [AutofillHints.name],
-                        enabled: !isLoading,
+                      const OfflineBanner(
+                        message:
+                            'You are offline. Creating an account needs a connection.',
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Create your account',
+                        style: AppTextStyles.display.copyWith(fontSize: 30),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'It takes under a minute.',
+                        style: AppTextStyles.caption,
+                      ),
+                      const SizedBox(height: 28),
                       AppTextField(
                         controller: _email,
                         label: 'Email',
@@ -112,19 +108,29 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                         label: 'Confirm password',
                         isPassword: true,
                         textInputAction: TextInputAction.done,
-                        validator: (value) => Validators.confirmPassword(value, _password.text),
+                        validator: (value) =>
+                            Validators.confirmPassword(value, _password.text),
                         onSubmitted: (_) => _submit(),
                         enabled: !isLoading,
                       ),
                       const SizedBox(height: 24),
-                      AppButton(label: 'Create account', onPressed: _submit, isLoading: isLoading),
+                      AppButton(
+                        label: 'Create account',
+                        onPressed: _submit,
+                        isLoading: isLoading,
+                      ),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('Already have an account?', style: AppTextStyles.caption),
+                          Text(
+                            'Already have an account?',
+                            style: AppTextStyles.caption,
+                          ),
                           TextButton(
-                            onPressed: isLoading ? null : () => context.go(RoutePaths.login),
+                            onPressed: isLoading
+                                ? null
+                                : () => context.go(RoutePaths.login),
                             child: const Text('Sign in'),
                           ),
                         ],

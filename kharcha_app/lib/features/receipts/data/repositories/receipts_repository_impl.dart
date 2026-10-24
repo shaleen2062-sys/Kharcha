@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:async';
 
 import 'package:fpdart/fpdart.dart';
 
@@ -63,6 +64,24 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
   @override
   Future<Either<Failure, Receipt>> update(Receipt receipt) =>
       _guard(() => _remote.update(receipt));
+
+  @override
+  Future<Either<Failure, Unit>> delete(String id) async {
+    final result = await _guard(() => _remote.delete(id));
+    return result.map((_) {
+      unawaited(_removeFromCachedList(id));
+      return unit;
+    });
+  }
+
+  Future<void> _removeFromCachedList(String id) async {
+    final cached = await _cachedList();
+    if (cached == null) return;
+    await _cache.write(_listKey, [
+      for (final receipt in cached)
+        if (receipt.id != id) ReceiptModel.toJson(receipt),
+    ]);
+  }
 
   Future<List<Receipt>?> _cachedList() async {
     final raw = await _cache.read(_listKey);

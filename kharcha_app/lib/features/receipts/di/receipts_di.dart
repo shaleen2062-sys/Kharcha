@@ -12,6 +12,7 @@ import 'package:kharcha_app/features/receipts/domain/repositories/receipts_repos
 import 'package:kharcha_app/features/receipts/domain/usecases/get_receipt_detail.dart';
 import 'package:kharcha_app/features/receipts/domain/usecases/get_receipts.dart';
 import 'package:kharcha_app/features/receipts/domain/usecases/update_receipt.dart';
+import 'package:kharcha_app/features/receipts/domain/usecases/delete_receipt.dart';
 import 'package:kharcha_app/features/receipts/domain/usecases/upload_receipt.dart';
 
 final receiptRemoteDataSourceProvider = Provider<ReceiptRemoteDataSource>(
@@ -19,23 +20,40 @@ final receiptRemoteDataSourceProvider = Provider<ReceiptRemoteDataSource>(
 );
 
 final receiptRepositoryProvider = Provider<ReceiptRepository>((ref) {
-  if (Env.useDemoData) return DemoReceiptRepository(ref.watch(demoStoreProvider));
-  return ReceiptRepositoryImpl(ref.watch(receiptRemoteDataSourceProvider), ref.watch(jsonCacheProvider));
+  if (Env.useDemoData)
+    return DemoReceiptRepository(ref.watch(demoStoreProvider));
+  return ReceiptRepositoryImpl(
+    ref.watch(receiptRemoteDataSourceProvider),
+    ref.watch(jsonCacheProvider),
+  );
 });
 
 final pendingUploadsProvider = Provider<PendingUploads>(
-  (ref) => PendingUploads(ref.watch(localStoreProvider), ref.watch(currentUidProvider)),
+  (ref) => PendingUploads(
+    ref.watch(localStoreProvider),
+    ref.watch(currentUidProvider),
+  ),
 );
 
 final pendingUploadSyncProvider = Provider<PendingUploadSync>(
-  (ref) => PendingUploadSync(ref.watch(pendingUploadsProvider), ref.watch(receiptRepositoryProvider)),
+  (ref) => PendingUploadSync(
+    ref.watch(pendingUploadsProvider),
+    ref.watch(receiptRepositoryProvider),
+  ),
 );
 
-final uploadReceiptUseCaseProvider =
-    Provider<UploadReceipt>((ref) => UploadReceipt(ref.watch(receiptRepositoryProvider)));
-final getReceiptsUseCaseProvider =
-    Provider<GetReceipts>((ref) => GetReceipts(ref.watch(receiptRepositoryProvider)));
-final updateReceiptUseCaseProvider =
-    Provider<UpdateReceipt>((ref) => UpdateReceipt(ref.watch(receiptRepositoryProvider)));
-final getReceiptUseCaseProvider =
-    Provider<GetReceipt>((ref) => GetReceipt(ref.watch(receiptRepositoryProvider)));
+final uploadReceiptUseCaseProvider = Provider<UploadReceipt>(
+  (ref) => UploadReceipt(ref.watch(receiptRepositoryProvider)),
+);
+final getReceiptsUseCaseProvider = Provider<GetReceipts>(
+  (ref) => GetReceipts(ref.watch(receiptRepositoryProvider)),
+);
+final updateReceiptUseCaseProvider = Provider<UpdateReceipt>(
+  (ref) => UpdateReceipt(ref.watch(receiptRepositoryProvider)),
+);
+final getReceiptUseCaseProvider = Provider<GetReceipt>(
+  (ref) => GetReceipt(ref.watch(receiptRepositoryProvider)),
+);
+final deleteReceiptUseCaseProvider = Provider<DeleteReceipt>(
+  (ref) => DeleteReceipt(ref.watch(receiptRepositoryProvider)),
+);

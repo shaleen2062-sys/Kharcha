@@ -24,18 +24,18 @@ class _LimitChange {
 /// to show.
 class DemoStore {
   DemoStore({DateTime? now})
-      : _now = now ?? DateTime.now(),
-        _limits = {
-          for (final e in const {
-            'Groceries': 15000.0,
-            'Dining': 4000.0,
-            'Transport': 6000.0,
-            'Shopping': 5000.0,
-            'Health': 1800.0,
-            'Bills': 8000.0,
-          }.entries)
-            e.key: [_LimitChange('2000-01', e.value)],
-        } {
+    : _now = now ?? DateTime.now(),
+      _limits = {
+        for (final e in const {
+          'Groceries': 15000.0,
+          'Dining': 4000.0,
+          'Transport': 6000.0,
+          'Shopping': 5000.0,
+          'Health': 1800.0,
+          'Bills': 8000.0,
+        }.entries)
+          e.key: [_LimitChange('2000-01', e.value)],
+      } {
     _receipts = [..._seed(_now), ..._history(_now)];
   }
 
@@ -62,6 +62,13 @@ class DemoStore {
     return saved;
   }
 
+  void removeReceipt(String id) {
+    _receipts = [
+      for (final r in _receipts)
+        if (r.id != id) r,
+    ];
+  }
+
   /// A freshly scanned receipt: the "reader" found something that needs a look.
   Receipt addScanned() {
     final sample = _scanSamples[_nextId % _scanSamples.length];
@@ -81,7 +88,10 @@ class DemoStore {
 
   // Profile ------------------------------------------------------------
 
-  UserProfile _profile = const UserProfile(displayName: 'Demo user', onboarded: Env.demoOnboarded);
+  UserProfile _profile = const UserProfile(
+    displayName: 'Demo user',
+    onboarded: Env.demoOnboarded,
+  );
 
   UserProfile get profile => _profile;
 
@@ -94,7 +104,8 @@ class DemoStore {
     double? found;
     String? foundFrom;
     for (final c in _limits[category] ?? const <_LimitChange>[]) {
-      if (c.from.compareTo(month) <= 0 && (foundFrom == null || c.from.compareTo(foundFrom) >= 0)) {
+      if (c.from.compareTo(month) <= 0 &&
+          (foundFrom == null || c.from.compareTo(foundFrom) >= 0)) {
         found = c.limit;
         foundFrom = c.from;
       }
@@ -109,10 +120,17 @@ class DemoStore {
     final list = <Budget>[];
     for (final category in _limits.keys) {
       final limit = limitFor(category, key);
-      if (limit != null) list.add(Budget(category: category, limit: limit, spent: spent[category] ?? 0));
+      if (limit != null)
+        list.add(
+          Budget(category: category, limit: limit, spent: spent[category] ?? 0),
+        );
     }
     // Keep the same order as the category list.
-    list.sort((a, b) => receiptCategories.indexOf(a.category).compareTo(receiptCategories.indexOf(b.category)));
+    list.sort(
+      (a, b) => receiptCategories
+          .indexOf(a.category)
+          .compareTo(receiptCategories.indexOf(b.category)),
+    );
     return list;
   }
 
@@ -120,14 +138,19 @@ class DemoStore {
   Budget setLimit(String category, double limit, {String? month}) {
     final from = month ?? _currentKey;
     _addChange(category, _LimitChange(from, limit));
-    return Budget(category: category, limit: limit, spent: _spentByCategory(from)[category] ?? 0);
+    return Budget(
+      category: category,
+      limit: limit,
+      spent: _spentByCategory(from)[category] ?? 0,
+    );
   }
 
   void removeBudget(String category, {String? month}) =>
       _addChange(category, _LimitChange(month ?? _currentKey, null));
 
   void _addChange(String category, _LimitChange change) {
-    final list = [...?_limits[category]]..removeWhere((c) => c.from == change.from);
+    final list = [...?_limits[category]]
+      ..removeWhere((c) => c.from == change.from);
     list.add(change);
     list.sort((a, b) => a.from.compareTo(b.from));
     _limits[category] = list;
@@ -154,26 +177,45 @@ class DemoStore {
       total: total,
       previousTotal: previous.values.fold<double>(0, (a, b) => a + b),
       receiptCount: confirmed.length,
-      byCategory: [for (final e in byCategory.entries) CategorySpend(category: e.key, amount: e.value)],
-      daily: [for (var d = 1; d <= lastDay; d++) DailySpend(day: d, amount: perDay[d] ?? 0)],
-      previousByCategory: [for (final e in previous.entries) CategorySpend(category: e.key, amount: e.value)],
+      byCategory: [
+        for (final e in byCategory.entries)
+          CategorySpend(category: e.key, amount: e.value),
+      ],
+      daily: [
+        for (var d = 1; d <= lastDay; d++)
+          DailySpend(day: d, amount: perDay[d] ?? 0),
+      ],
+      previousByCategory: [
+        for (final e in previous.entries)
+          CategorySpend(category: e.key, amount: e.value),
+      ],
     );
   }
 
   /// Totals of the [months] months ending with this one, oldest first (the trends chart).
   List<MonthTotal> trend({int months = 6}) {
-    final keys = [for (var back = months - 1; back >= 0; back--) shiftMonth(_currentKey, -back)];
-    return [for (final k in keys) MonthTotal(month: k, total: summary(month: k == _currentKey ? null : k).total)];
+    final keys = [
+      for (var back = months - 1; back >= 0; back--)
+        shiftMonth(_currentKey, -back),
+    ];
+    return [
+      for (final k in keys)
+        MonthTotal(
+          month: k,
+          total: summary(month: k == _currentKey ? null : k).total,
+        ),
+    ];
   }
 
   // Helpers ------------------------------------------------------------
 
   Iterable<Receipt> _confirmedIn(String key) => _receipts.where((r) {
-        if (r.status != ReceiptStatus.confirmed) return false;
-        final d = r.date;
-        if (d == null) return key == _currentKey; // an undated receipt counts for now
-        return monthKey(d) == key;
-      });
+    if (r.status != ReceiptStatus.confirmed) return false;
+    final d = r.date;
+    if (d == null)
+      return key == _currentKey; // an undated receipt counts for now
+    return monthKey(d) == key;
+  });
 
   double _spend(Receipt r) => r.items.isEmpty ? (r.total ?? 0) : r.itemsSum;
 
@@ -212,15 +254,23 @@ class DemoStore {
         final t = _historyTemplates[n];
         final price = (t.price * scale[back - 1] / 10).round() * 10.0;
         final id = 'demo-h$back-$n';
-        out.add(Receipt(
-          id: id,
-          status: ReceiptStatus.confirmed,
-          merchant: t.merchant,
-          total: price,
-          date: DateTime(start.year, start.month, t.day > last ? last : t.day),
-          imageUrl: 'demo://$id',
-          items: [ReceiptItem(name: t.item, price: price, category: t.category)],
-        ));
+        out.add(
+          Receipt(
+            id: id,
+            status: ReceiptStatus.confirmed,
+            merchant: t.merchant,
+            total: price,
+            date: DateTime(
+              start.year,
+              start.month,
+              t.day > last ? last : t.day,
+            ),
+            imageUrl: 'demo://$id',
+            items: [
+              ReceiptItem(name: t.item, price: price, category: t.category),
+            ],
+          ),
+        );
       }
     }
     out.sort((a, b) => b.date!.compareTo(a.date!));
@@ -235,22 +285,30 @@ class DemoStore {
       int daysAgo,
       double? total,
       List<ReceiptItem> items,
-    ) =>
-        Receipt(
-          id: id,
-          status: status,
-          merchant: merchant,
-          total: total,
-          date: status == ReceiptStatus.failed ? null : _day(daysAgo),
-          imageUrl: 'demo://$id',
-          items: items,
-        );
+    ) => Receipt(
+      id: id,
+      status: status,
+      merchant: merchant,
+      total: total,
+      date: status == ReceiptStatus.failed ? null : _day(daysAgo),
+      imageUrl: 'demo://$id',
+      items: items,
+    );
 
     const confirmed = ReceiptStatus.confirmed;
     return [
       r('demo-1', ReceiptStatus.needsReview, 'Corner Mart', 0, 1384, const [
-        ReceiptItem(name: 'Basmati rice 5kg', price: 640, category: 'Groceries'),
-        ReceiptItem(name: 'Toned milk 1L', price: 70, quantity: 2, category: 'Groceries'),
+        ReceiptItem(
+          name: 'Basmati rice 5kg',
+          price: 640,
+          category: 'Groceries',
+        ),
+        ReceiptItem(
+          name: 'Toned milk 1L',
+          price: 70,
+          quantity: 2,
+          category: 'Groceries',
+        ),
         ReceiptItem(name: 'Dish soap', price: 210, category: 'Shopping'),
         ReceiptItem(name: 'Face wash', price: 294, category: 'Health'),
       ]),
@@ -266,7 +324,12 @@ class DemoStore {
         ReceiptItem(name: 'Atta 10kg', price: 1200, category: 'Groceries'),
       ]),
       r('demo-5', confirmed, 'Sher Restaurant', 2, 3450, const [
-        ReceiptItem(name: 'Thali set', price: 850, quantity: 3, category: 'Dining'),
+        ReceiptItem(
+          name: 'Thali set',
+          price: 850,
+          quantity: 3,
+          category: 'Dining',
+        ),
         ReceiptItem(name: 'Drinks', price: 900, category: 'Dining'),
       ]),
       r('demo-6', ReceiptStatus.failed, null, 2, null, const []),
@@ -281,22 +344,44 @@ class DemoStore {
         ReceiptItem(name: 'Detergent', price: 1150, category: 'Shopping'),
       ]),
       r('demo-9', confirmed, 'QFX Cinemas', 6, 1850, const [
-        ReceiptItem(name: 'Movie tickets', price: 600, quantity: 2, category: 'Entertainment'),
-        ReceiptItem(name: 'Popcorn and drinks', price: 650, category: 'Entertainment'),
+        ReceiptItem(
+          name: 'Movie tickets',
+          price: 600,
+          quantity: 2,
+          category: 'Entertainment',
+        ),
+        ReceiptItem(
+          name: 'Popcorn and drinks',
+          price: 650,
+          category: 'Entertainment',
+        ),
       ]),
       r('demo-10', confirmed, 'Hill View Cafe', 7, 950, const [
         ReceiptItem(name: 'Momo', price: 450, category: 'Dining'),
-        ReceiptItem(name: 'Coffee', price: 250, quantity: 2, category: 'Dining'),
+        ReceiptItem(
+          name: 'Coffee',
+          price: 250,
+          quantity: 2,
+          category: 'Dining',
+        ),
       ]),
       r('demo-11', confirmed, 'Daraz order', 8, 2400, const [
         ReceiptItem(name: 'Earphones', price: 2400, category: 'Shopping'),
       ]),
       // Two receipts that look like the same purchase, for the duplicate alert.
       r('demo-12', confirmed, 'Corner Mart', 8, 640, const [
-        ReceiptItem(name: 'Basmati rice 5kg', price: 640, category: 'Groceries'),
+        ReceiptItem(
+          name: 'Basmati rice 5kg',
+          price: 640,
+          category: 'Groceries',
+        ),
       ]),
       r('demo-13', confirmed, 'Corner Mart', 8, 640, const [
-        ReceiptItem(name: 'Basmati rice 5kg', price: 640, category: 'Groceries'),
+        ReceiptItem(
+          name: 'Basmati rice 5kg',
+          price: 640,
+          category: 'Groceries',
+        ),
       ]),
       r('demo-14', confirmed, 'City Pharmacy', 9, 1544, const [
         ReceiptItem(name: 'Vitamins', price: 1250, category: 'Health'),
@@ -319,7 +404,13 @@ class DemoStore {
 }
 
 class _HistoryTemplate {
-  const _HistoryTemplate(this.day, this.merchant, this.category, this.item, this.price);
+  const _HistoryTemplate(
+    this.day,
+    this.merchant,
+    this.category,
+    this.item,
+    this.price,
+  );
   final int day;
   final String merchant;
   final String category;
@@ -338,7 +429,13 @@ const List<_HistoryTemplate> _historyTemplates = [
   _HistoryTemplate(16, 'Hill View Cafe', 'Dining', 'Coffee and momo', 1100),
   _HistoryTemplate(19, 'Nepal Telecom', 'Bills', 'Internet bill', 1800),
   _HistoryTemplate(22, 'QFX Cinemas', 'Entertainment', 'Movie night', 1600),
-  _HistoryTemplate(25, 'Namaste Supermarket', 'Groceries', 'Fruits and dairy', 3300),
+  _HistoryTemplate(
+    25,
+    'Namaste Supermarket',
+    'Groceries',
+    'Fruits and dairy',
+    3300,
+  ),
   _HistoryTemplate(28, 'Metro Fuel', 'Transport', 'Petrol', 2600),
 ];
 

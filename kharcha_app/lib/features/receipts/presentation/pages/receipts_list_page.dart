@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,58 +21,98 @@ import 'package:kharcha_app/features/receipts/presentation/widgets/money.dart';
 import 'package:kharcha_app/features/receipts/presentation/widgets/receipt_image.dart';
 import 'package:kharcha_app/features/receipts/presentation/widgets/status_chip.dart';
 
-class ReceiptsPage extends ConsumerWidget {
+class ReceiptsPage extends ConsumerStatefulWidget {
   const ReceiptsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ReceiptsPage> createState() => _ReceiptsPageState();
+}
+
+class _ReceiptsPageState extends ConsumerState<ReceiptsPage> {
+  Timer? _pollTimer;
+
+  void _pollWhileProcessing(List<Receipt> receipts) {
+    if (!receipts.any((r) => r.status == ReceiptStatus.processing) ||
+        _pollTimer != null)
+      return;
+    _pollTimer = Timer(const Duration(seconds: 4), () {
+      _pollTimer = null;
+      if (mounted) ref.invalidate(receiptsProvider);
+    });
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final receipts = ref.watch(receiptsProvider);
 
+    return _buildPage(context, receipts);
+  }
+
+  Widget _buildPage(BuildContext context, AsyncValue<List<Receipt>> receipts) {
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 64,
-        leading: const Padding(padding: EdgeInsets.only(left: 20), child: CircleBackButton()),
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 20),
+          child: CircleBackButton(),
+        ),
         title: const Text('My receipts'),
       ),
       floatingActionButton: kIsWeb
           ? null // no camera on web
           : FloatingActionButton.extended(
-        onPressed: () => context.push(RoutePaths.scan),
-        icon: const Icon(Icons.photo_camera_outlined),
-        label: const Text('Scan receipt'),
-      ),
-      body: Column(
-        children: [
-          const OfflineBanner(),
-          const Padding(padding: EdgeInsets.fromLTRB(16, 8, 16, 0), child: PendingUploadsBanner()),
-          Expanded(
-            child: receipts.when(
-              loading: () => const LoadingView(),
-              error: (error, _) => ErrorView(
-                message: error is Failure ? error.message : 'Could not load your receipts.',
-                onRetry: () => ref.invalidate(receiptsProvider),
-              ),
-              data: (list) {
-                if (list.isEmpty) {
-                  return const EmptyState(
-                    icon: Icons.receipt_long_outlined,
-                    title: 'No receipts yet',
-                    message: 'Tap Scan receipt to add your first one.',
-                  );
-                }
-                return RefreshIndicator(
-                  onRefresh: () => ref.refresh(receiptsProvider.future),
-                  child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
-                    itemCount: list.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (context, i) => _ReceiptTile(receipt: list[i]),
-                  ),
-                );
-              },
+              onPressed: () => context.push(RoutePaths.scan),
+              icon: const Icon(Icons.photo_camera_outlined),
+              label: const Text('Scan receipt'),
             ),
-          ),
-        ],
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            const OfflineBanner(),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: PendingUploadsBanner(),
+            ),
+            Expanded(
+              child: receipts.when(
+                loading: () => const LoadingView(),
+                error: (error, _) => ErrorView(
+                  message: error is Failure
+                      ? error.message
+                      : 'Could not load your receipts.',
+                  onRetry: () => ref.invalidate(receiptsProvider),
+                ),
+                data: (list) {
+                  _pollWhileProcessing(list);
+                  if (list.isEmpty) {
+                    return const EmptyState(
+                      icon: Icons.receipt_long_outlined,
+                      title: 'No receipts yet',
+                      message: 'Tap Scan receipt to add your first one.',
+                    );
+                  }
+                  return RefreshIndicator(
+                    onRefresh: () => ref.refresh(receiptsProvider.future),
+                    child: ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+                      itemCount: list.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemBuilder: (context, i) =>
+                          _ReceiptTile(receipt: list[i]),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -103,7 +145,8 @@ class _ReceiptTile extends StatelessWidget {
                 button: true,
                 label: 'View photo',
                 child: GestureDetector(
-                  onTap: () => context.push(RoutePaths.receiptPhotoFor(receipt.id)),
+                  onTap: () =>
+                      context.push(RoutePaths.receiptPhotoFor(receipt.id)),
                   child: SizedBox(
                     width: 56,
                     height: 72,
@@ -119,7 +162,12 @@ class _ReceiptTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(receipt.title, style: AppTextStyles.subheading, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(
+                      receipt.title,
+                      style: AppTextStyles.subheading,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     if (subtitle.isNotEmpty) ...[
                       const SizedBox(height: 2),
                       Text(subtitle, style: AppTextStyles.caption),
@@ -130,7 +178,10 @@ class _ReceiptTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Text(formatMoney(receipt.total, receipt.currency), style: AppTextStyles.body),
+              Text(
+                formatMoney(receipt.total, receipt.currency),
+                style: AppTextStyles.body,
+              ),
             ],
           ),
         ),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,7 +18,10 @@ final receiptsProvider = FutureProvider.autoDispose<List<Receipt>>((ref) async {
   return result.fold((failure) => throw failure, (list) => list);
 });
 
-final receiptProvider = FutureProvider.autoDispose.family<Receipt, String>((ref, id) async {
+final receiptProvider = FutureProvider.autoDispose.family<Receipt, String>((
+  ref,
+  id,
+) async {
   final result = await ref.watch(getReceiptUseCaseProvider)(id);
   return result.fold((failure) => throw failure, (receipt) => receipt);
 });
@@ -51,7 +56,9 @@ class UploadController extends Notifier<AsyncValue<Receipt?>> {
             return UploadOutcome.queued;
           }
           state = AsyncError<Receipt?>(
-            const NetworkFailure('No internet, and the photo could not be saved for later.'),
+            const NetworkFailure(
+              'No internet, and the photo could not be saved for later.',
+            ),
             StackTrace.current,
           );
           return UploadOutcome.failed;
@@ -69,7 +76,9 @@ class UploadController extends Notifier<AsyncValue<Receipt?>> {
 }
 
 final uploadControllerProvider =
-    NotifierProvider.autoDispose<UploadController, AsyncValue<Receipt?>>(UploadController.new);
+    NotifierProvider.autoDispose<UploadController, AsyncValue<Receipt?>>(
+      UploadController.new,
+    );
 
 /// How many photos are waiting for the internet. Lives for the whole app.
 class PendingCount extends Notifier<int> {
@@ -89,7 +98,9 @@ class PendingCount extends Notifier<int> {
   }
 }
 
-final pendingCountProvider = NotifierProvider<PendingCount, int>(PendingCount.new);
+final pendingCountProvider = NotifierProvider<PendingCount, int>(
+  PendingCount.new,
+);
 
 /// Saving corrections on the review screen. Returns true on success.
 class UpdateController extends Notifier<AsyncValue<Receipt?>> {
@@ -115,4 +126,33 @@ class UpdateController extends Notifier<AsyncValue<Receipt?>> {
 }
 
 final updateControllerProvider =
-    NotifierProvider.autoDispose<UpdateController, AsyncValue<Receipt?>>(UpdateController.new);
+    NotifierProvider.autoDispose<UpdateController, AsyncValue<Receipt?>>(
+      UpdateController.new,
+    );
+
+class DeleteController extends Notifier<AsyncValue<void>> {
+  @override
+  AsyncValue<void> build() => const AsyncData<void>(null);
+
+  Future<bool> delete(String id) async {
+    state = const AsyncLoading<void>();
+    final result = await ref.read(deleteReceiptUseCaseProvider)(id);
+    return result.fold(
+      (Failure failure) {
+        state = AsyncError<void>(failure, StackTrace.current);
+        return false;
+      },
+      (_) {
+        state = const AsyncData<void>(null);
+        unawaited(ref.refresh(receiptsProvider.future));
+        ref.invalidate(receiptProvider(id));
+        return true;
+      },
+    );
+  }
+}
+
+final deleteControllerProvider =
+    NotifierProvider.autoDispose<DeleteController, AsyncValue<void>>(
+      DeleteController.new,
+    );

@@ -12,6 +12,7 @@ abstract interface class ReceiptRemoteDataSource {
   Future<List<Receipt>> list();
   Future<Receipt> get(String id);
   Future<Receipt> update(Receipt receipt);
+  Future<void> delete(String id);
 }
 
 class DioReceiptRemoteDataSource implements ReceiptRemoteDataSource {
@@ -27,7 +28,9 @@ class DioReceiptRemoteDataSource implements ReceiptRemoteDataSource {
       () => _dio.post<Object?>(
         ApiEndpoints.receipts,
         data: form,
-        options: idempotencyKey == null ? null : Options(headers: {'Idempotency-Key': idempotencyKey}),
+        options: idempotencyKey == null
+            ? null
+            : Options(headers: {'Idempotency-Key': idempotencyKey}),
       ),
     );
     return ReceiptModel.fromJson(_receiptOf(data));
@@ -38,7 +41,10 @@ class DioReceiptRemoteDataSource implements ReceiptRemoteDataSource {
     final data = await _send(() => _dio.get<Object?>(ApiEndpoints.receipts));
     final raw = data is Map<String, dynamic> ? data['receipts'] : data;
     if (raw is! List) return const [];
-    return raw.whereType<Map<String, dynamic>>().map(ReceiptModel.fromJson).toList();
+    return raw
+        .whereType<Map<String, dynamic>>()
+        .map(ReceiptModel.fromJson)
+        .toList();
   }
 
   @override
@@ -50,9 +56,17 @@ class DioReceiptRemoteDataSource implements ReceiptRemoteDataSource {
   @override
   Future<Receipt> update(Receipt receipt) async {
     final data = await _send(
-      () => _dio.patch<Object?>(ApiEndpoints.receipt(receipt.id), data: ReceiptModel.toUpdateJson(receipt)),
+      () => _dio.patch<Object?>(
+        ApiEndpoints.receipt(receipt.id),
+        data: ReceiptModel.toUpdateJson(receipt),
+      ),
     );
     return ReceiptModel.fromJson(_receiptOf(data));
+  }
+
+  @override
+  Future<void> delete(String id) async {
+    await _send(() => _dio.delete<Object?>(ApiEndpoints.receipt(id)));
   }
 
   /// The backend wraps a receipt as { "receipt": {...} }.
@@ -64,7 +78,9 @@ class DioReceiptRemoteDataSource implements ReceiptRemoteDataSource {
 
   Map<String, dynamic> _asMap(Object? data) {
     if (data is Map<String, dynamic>) return data;
-    throw const ServerException(message: 'Unexpected response from the server.');
+    throw const ServerException(
+      message: 'Unexpected response from the server.',
+    );
   }
 
   /// Turns Dio errors into ServerException. Connection problems keep a null
@@ -76,8 +92,13 @@ class DioReceiptRemoteDataSource implements ReceiptRemoteDataSource {
     } on DioException catch (e) {
       final body = e.response?.data;
       final err = body is Map<String, dynamic> ? body['error'] : null;
-      final message = err is Map<String, dynamic> ? err['message'] as String? : null;
-      throw ServerException(statusCode: e.response?.statusCode, message: message);
+      final message = err is Map<String, dynamic>
+          ? err['message'] as String?
+          : null;
+      throw ServerException(
+        statusCode: e.response?.statusCode,
+        message: message,
+      );
     }
   }
 }

@@ -56,6 +56,13 @@ class DemoReceiptRepository implements ReceiptRepository {
     await _latency();
     return Right(_store.replace(receipt));
   }
+
+  @override
+  Future<Either<Failure, Unit>> delete(String id) async {
+    await _latency();
+    _store.removeReceipt(id);
+    return const Right(unit);
+  }
 }
 
 class DemoBudgetRepository implements BudgetRepository {

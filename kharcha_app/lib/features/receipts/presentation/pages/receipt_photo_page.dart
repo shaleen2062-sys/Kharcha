@@ -30,52 +30,66 @@ class ReceiptPhotoPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
-        title: const Text('Receipt photo', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Receipt photo',
+          style: TextStyle(color: Colors.white),
+        ),
         leading: IconButton(
           tooltip: 'Close',
           icon: const Icon(Icons.close),
-          onPressed: () => context.canPop() ? context.pop() : context.go(RoutePaths.home),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go(RoutePaths.home),
         ),
       ),
-      body: receipt.when(
-        skipLoadingOnRefresh: true,
-        loading: () => const LoadingView(),
-        error: (error, _) => ErrorView(
-          message: error is Failure ? error.message : 'Could not load this receipt.',
-          onRetry: () => ref.invalidate(receiptProvider(id)),
-        ),
-        data: (r) => LayoutBuilder(
-          builder: (context, box) {
-            final photo = _Zoomable(receipt: r);
-            if (box.maxWidth >= 760) {
-              return Row(
+      body: SafeArea(
+        top: false,
+        child: receipt.when(
+          skipLoadingOnRefresh: true,
+          loading: () => const LoadingView(),
+          error: (error, _) => ErrorView(
+            message: error is Failure
+                ? error.message
+                : 'Could not load this receipt.',
+            onRetry: () => ref.invalidate(receiptProvider(id)),
+          ),
+          data: (r) => LayoutBuilder(
+            builder: (context, box) {
+              final photo = _Zoomable(receipt: r);
+              if (box.maxWidth >= 760) {
+                return Row(
+                  children: [
+                    Expanded(child: photo),
+                    SizedBox(
+                      width: 360,
+                      child: ColoredBox(
+                        color: AppColors.bg,
+                        child: _Details(receipt: r),
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return Stack(
                 children: [
-                  Expanded(child: photo),
-                  SizedBox(
-                    width: 360,
-                    child: ColoredBox(color: AppColors.bg, child: _Details(receipt: r)),
+                  Positioned.fill(child: photo),
+                  DraggableScrollableSheet(
+                    initialChildSize: 0.16,
+                    minChildSize: 0.1,
+                    maxChildSize: 0.8,
+                    builder: (context, controller) => Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.bg,
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                      ),
+                      child: _Details(receipt: r, controller: controller),
+                    ),
                   ),
                 ],
               );
-            }
-            return Stack(
-              children: [
-                Positioned.fill(child: photo),
-                DraggableScrollableSheet(
-                  initialChildSize: 0.16,
-                  minChildSize: 0.1,
-                  maxChildSize: 0.8,
-                  builder: (context, controller) => Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.bg,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                    ),
-                    child: _Details(receipt: r, controller: controller),
-                  ),
-                ),
-              ],
-            );
-          },
+            },
+          ),
         ),
       ),
     );
@@ -95,7 +109,11 @@ class _Zoomable extends StatelessWidget {
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: ReceiptImage(receipt: receipt, fit: BoxFit.contain, alignment: Alignment.center),
+          child: ReceiptImage(
+            receipt: receipt,
+            fit: BoxFit.contain,
+            alignment: Alignment.center,
+          ),
         ),
       ),
     );
@@ -118,7 +136,10 @@ class _Details extends StatelessWidget {
           child: Container(
             width: 40,
             height: 4,
-            decoration: BoxDecoration(color: AppColors.line, borderRadius: BorderRadius.circular(2)),
+            decoration: BoxDecoration(
+              color: AppColors.line,
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
         ),
         const SizedBox(height: 14),
@@ -133,7 +154,10 @@ class _Details extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         if (receipt.items.isEmpty)
-          const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Text('No line items read yet.'))
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Text('No line items read yet.'),
+          )
         else
           for (final item in receipt.items)
             Padding(
@@ -145,33 +169,54 @@ class _Details extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(item.quantity > 1 ? '${item.quantity} x ${item.name}' : item.name),
-                        if (item.category != null) Text(item.category!, style: AppTextStyles.caption),
+                        Text(
+                          item.quantity > 1
+                              ? '${item.quantity} x ${item.name}'
+                              : item.name,
+                        ),
+                        if (item.category != null)
+                          Text(item.category!, style: AppTextStyles.caption),
                       ],
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text(formatMoney(item.price * item.quantity, receipt.currency)),
+                  Text(
+                    formatMoney(item.price * item.quantity, receipt.currency),
+                  ),
                 ],
               ),
             ),
         const Divider(height: 24),
         Row(
           children: [
-            const Expanded(child: Text('Total', style: TextStyle(fontWeight: FontWeight.w700))),
-            Text(formatMoney(receipt.total, receipt.currency), style: const TextStyle(fontWeight: FontWeight.w700)),
+            const Expanded(
+              child: Text(
+                'Total',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+            Text(
+              formatMoney(receipt.total, receipt.currency),
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
           ],
         ),
         if (receipt.totalMismatch)
           Padding(
             padding: EdgeInsets.only(top: 10),
-            child: Text('The items do not add up to the total. Compare with the photo.',
-                style: TextStyle(color: AppColors.amberInk)),
+            child: Text(
+              'The items do not add up to the total. Compare with the photo.',
+              style: TextStyle(color: AppColors.amberInk),
+            ),
           ),
         const SizedBox(height: 16),
         OutlinedButton(
           onPressed: () => context.push(RoutePaths.receiptEditFor(receipt.id)),
-          child: Text(receipt.status == ReceiptStatus.needsReview ? 'Review and confirm' : 'Edit'),
+          child: Text(
+            receipt.status == ReceiptStatus.needsReview
+                ? 'Review and confirm'
+                : 'Edit',
+          ),
         ),
       ],
     );
