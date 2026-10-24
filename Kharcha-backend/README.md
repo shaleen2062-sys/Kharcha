@@ -17,7 +17,7 @@ Try it: `curl -H "Authorization: Bearer dev:demo" http://localhost:4000/api/cate
 Phone or emulator: set `PUBLIC_BASE_URL` to an address the phone can reach (`http://10.0.2.2:4000` for the Android emulator, `http://<your-pc-ip>:4000` for a real phone). Photo links are built from it.
 
 ## The AI reader
-`READER=manual` (default): no AI, the user types receipts in. `READER=http` + `READER_URL=http://localhost:8000`: photos are sent to `../reader`. See `../reader/README.md` and `AI_USAGE.md`.
+`READER=manual` (default): no AI, the user types receipts in. `READER=http` + `READER_URL=http://localhost:8000`: photos are sent to `../reader`. See `../reader/README.md` and [the root AI usage disclosure](../AI_USAGE.md).
 
 ## Layout
 ```
