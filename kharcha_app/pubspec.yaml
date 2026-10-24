@@ -54,6 +54,12 @@ dependencies:
   json_annotation: ^4.12.0
   fpdart: ^1.2.0
 
+  # Added for the scanner, receipt photos and fonts (used by lib/features/scanner and receipts)
+  cached_network_image: ^3.4.1
+  camera: ^0.11.0
+  opencv_dart: ^2.1.0
+  google_fonts: ^6.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
