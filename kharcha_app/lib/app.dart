@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,7 +36,8 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     final router = ref.watch(routerProvider);
     final mode = ref.watch(themeModeProvider);
     // Work out light or dark here, set the colours, then build the themes from them.
-    final platform = WidgetsBinding.instance.platformDispatcher.platformBrightness;
+    final platform =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness;
     final brightness = switch (mode) {
       ThemeMode.light => Brightness.light,
       ThemeMode.dark => Brightness.dark,
@@ -56,27 +56,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       builder: (context, child) => KeyedSubtree(
         // A new key when the look changes rebuilds every screen with the new colours.
         key: ValueKey(brightness),
-        child: UploadSyncHost(child: _WebFrame(child: child ?? const SizedBox.shrink())),
-      ),
-    );
-  }
-}
-
-/// On web, keeps the app a readable column instead of stretching across a wide
-/// window. On phones it does nothing.
-class _WebFrame extends StatelessWidget {
-  const _WebFrame({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    if (!kIsWeb) return child;
-    return ColoredBox(
-      color: AppColors.bg,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 720), child: child),
+        child: UploadSyncHost(child: child ?? const SizedBox.shrink()),
       ),
     );
   }

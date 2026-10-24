@@ -63,13 +63,14 @@ class DefaultFirebaseOptions {
     projectId: 'kharcha-f360a',
     storageBucket: 'kharcha-f360a.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyD5R3glyMa7apKweQwnI5efSBqrtsaAldw',
     appId: '1:814219916762:ios:ede3a421c07e51ec297ce3',
     messagingSenderId: '814219916762',
     projectId: 'kharcha-f360a',
     storageBucket: 'kharcha-f360a.firebasestorage.app',
+    androidClientId: '814219916762-7ds3mur33k42pj4qovr84kilbanesbuu.apps.googleusercontent.com',
+    iosClientId: '814219916762-vnparhkgaasul78su8mp0m9jo0e6cj1e.apps.googleusercontent.com',
     iosBundleId: 'com.skillpath.kharchaApp',
   );
 }

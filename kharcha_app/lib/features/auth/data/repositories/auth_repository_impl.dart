@@ -28,6 +28,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, AppUser>> signInWithGoogle() {
+    return _guard(() async => (await _remote.signInWithGoogle()).toEntity());
+  }
+
+  @override
   Future<Either<Failure, AppUser>> signUp({
     required String email,
     required String password,
@@ -82,15 +87,42 @@ class AuthRepositoryImpl implements AuthRepository {
       case 'invalid-credential':
         return AuthFailure('Incorrect email or password.', code: e.code);
       case 'email-already-in-use':
-        return AuthFailure('An account with this email already exists.', code: e.code);
+        return AuthFailure(
+          'An account with this email already exists.',
+          code: e.code,
+        );
       case 'weak-password':
-        return AuthFailure('Choose a stronger password (at least 6 characters).', code: e.code);
+        return AuthFailure(
+          'Choose a stronger password (at least 6 characters).',
+          code: e.code,
+        );
       case 'too-many-requests':
-        return AuthFailure('Too many attempts. Wait a moment and try again.', code: e.code);
+        return AuthFailure(
+          'Too many attempts. Wait a moment and try again.',
+          code: e.code,
+        );
       case 'operation-not-allowed':
-        return AuthFailure('Email sign-in is not enabled for this project.', code: e.code);
+        return AuthFailure(
+          'Email sign-in is not enabled for this project.',
+          code: e.code,
+        );
+      case 'popup-blocked':
+        return AuthFailure(
+          'The Google sign-in window was blocked. Allow pop-ups and try again.',
+          code: e.code,
+        );
+      case 'popup-closed-by-user':
+        return AuthFailure('Google sign-in was cancelled.', code: e.code);
+      case 'account-exists-with-different-credential':
+        return AuthFailure(
+          'An account already exists with a different sign-in method.',
+          code: e.code,
+        );
       default:
-        return AuthFailure('Could not complete the request. Please try again.', code: e.code);
+        return AuthFailure(
+          'Could not complete the request. Please try again.',
+          code: e.code,
+        );
     }
   }
 }

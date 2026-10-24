@@ -27,15 +27,22 @@ class AppShell extends ConsumerWidget {
         child: Column(
           children: [
             if (Env.useDemoData) const _DemoStrip(),
-            const Padding(padding: EdgeInsets.fromLTRB(16, 8, 16, 0), child: OfflineBanner()),
-            const Padding(padding: EdgeInsets.fromLTRB(16, 8, 16, 0), child: PendingUploadsBanner()),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: OfflineBanner(),
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: PendingUploadsBanner(),
+            ),
             Expanded(child: shell),
           ],
         ),
       ),
       bottomNavigationBar: _BottomNav(
         index: shell.currentIndex,
-        onSelect: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
+        onSelect: (i) =>
+            shell.goBranch(i, initialLocation: i == shell.currentIndex),
         onScan: () => context.push(RoutePaths.scan),
       ),
     );
@@ -54,14 +61,22 @@ class _DemoStrip extends StatelessWidget {
       child: Text(
         'Demo data: nothing here is saved to a server',
         textAlign: TextAlign.center,
-        style: TextStyle(color: AppColors.amberInk, fontSize: 12, fontWeight: FontWeight.w600),
+        style: TextStyle(
+          color: AppColors.amberInk,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
 }
 
 class _BottomNav extends ConsumerWidget {
-  const _BottomNav({required this.index, required this.onSelect, required this.onScan});
+  const _BottomNav({
+    required this.index,
+    required this.onSelect,
+    required this.onScan,
+  });
 
   final int index;
   final ValueChanged<int> onSelect;
@@ -69,20 +84,23 @@ class _BottomNav extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final waiting = ref.watch(receiptsProvider).maybeWhen(
-          data: (list) => list.where((r) => r.status == ReceiptStatus.needsReview).length,
+    final waiting = ref
+        .watch(receiptsProvider)
+        .maybeWhen(
+          data: (list) =>
+              list.where((r) => r.status == ReceiptStatus.needsReview).length,
           orElse: () => 0,
         );
 
     Widget tab(int i, IconData icon, String label, {int badge = 0}) => Expanded(
-          child: _NavItem(
-            icon: icon,
-            label: label,
-            selected: index == i,
-            badge: badge,
-            onTap: () => onSelect(i),
-          ),
-        );
+      child: _NavItem(
+        icon: icon,
+        label: label,
+        selected: index == i,
+        badge: badge,
+        onTap: () => onSelect(i),
+      ),
+    );
 
     return Container(
       decoration: BoxDecoration(
@@ -115,10 +133,18 @@ class _BottomNav extends ConsumerWidget {
                               shape: BoxShape.circle,
                               color: AppColors.primary,
                               boxShadow: [
-                                BoxShadow(color: Color(0x590B6B57), blurRadius: 12, offset: Offset(0, 4)),
+                                BoxShadow(
+                                  color: Color(0x590B6B57),
+                                  blurRadius: 12,
+                                  offset: Offset(0, 4),
+                                ),
                               ],
                             ),
-                            child: const Icon(Icons.photo_camera_outlined, color: Colors.white, size: 26),
+                            child: const Icon(
+                              Icons.photo_camera_outlined,
+                              color: Colors.white,
+                              size: 26,
+                            ),
                           ),
                         ),
                       ),
@@ -168,19 +194,36 @@ class _NavItem extends StatelessWidget {
                   top: -6,
                   child: Container(
                     constraints: const BoxConstraints(minWidth: 16),
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    decoration: BoxDecoration(color: AppColors.amber, borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 1,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.amber,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: Text(
                       '$badge',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.amberInk, fontSize: 10, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        color: AppColors.amberInk,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
             ],
           ),
           const SizedBox(height: 4),
-          Text(label, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );

@@ -22,14 +22,26 @@ class AuthController extends Notifier<AsyncValue<void>> {
 
   Future<bool> signIn(String email, String password) {
     return _run(
-      () => ref.read(signInUseCaseProvider)(SignInParams(email: email, password: password)),
+      () => ref.read(signInUseCaseProvider)(
+        SignInParams(email: email, password: password),
+      ),
+    );
+  }
+
+  Future<bool> signInWithGoogle() {
+    return _run(
+      () => ref.read(signInWithGoogleUseCaseProvider)(const NoParams()),
     );
   }
 
   Future<bool> signUp(String email, String password, {String? displayName}) {
     return _run(
       () => ref.read(signUpUseCaseProvider)(
-        SignUpParams(email: email, password: password, displayName: displayName),
+        SignUpParams(
+          email: email,
+          password: password,
+          displayName: displayName,
+        ),
       ),
     );
   }
@@ -60,6 +72,5 @@ class AuthController extends Notifier<AsyncValue<void>> {
   }
 }
 
-final authControllerProvider = NotifierProvider<AuthController, AsyncValue<void>>(
-  AuthController.new,
-);
+final authControllerProvider =
+    NotifierProvider<AuthController, AsyncValue<void>>(AuthController.new);

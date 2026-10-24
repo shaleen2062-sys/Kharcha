@@ -35,7 +35,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
     // On success the auth guard moves the user to the home screen.
-    await ref.read(authControllerProvider.notifier).signIn(_email.text, _password.text);
+    await ref
+        .read(authControllerProvider.notifier)
+        .signIn(_email.text, _password.text);
   }
 
   @override
@@ -58,11 +60,22 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const OfflineBanner(message: 'You are offline. Signing in needs a connection.'),
+                      const OfflineBanner(
+                        message:
+                            'You are offline. Signing in needs a connection.',
+                      ),
                       const SizedBox(height: 8),
-                      Text('Kharcha', style: AppTextStyles.display.copyWith(color: AppColors.primary)),
+                      Text(
+                        'Kharcha',
+                        style: AppTextStyles.display.copyWith(
+                          color: AppColors.primary,
+                        ),
+                      ),
                       const SizedBox(height: 8),
-                      Text('Photograph a receipt and see where your money goes.', style: AppTextStyles.caption),
+                      Text(
+                        'Photograph a receipt and see where your money goes.',
+                        style: AppTextStyles.caption,
+                      ),
                       const SizedBox(height: 32),
                       AppTextField(
                         controller: _email,
@@ -80,26 +93,49 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         isPassword: true,
                         textInputAction: TextInputAction.done,
                         autofillHints: const [AutofillHints.password],
-                        validator: (value) => Validators.required(value, field: 'Password'),
+                        validator: (value) =>
+                            Validators.required(value, field: 'Password'),
                         onSubmitted: (_) => _submit(),
                         enabled: !isLoading,
                       ),
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
-                          onPressed: isLoading ? null : () => context.go(RoutePaths.forgotPassword),
+                          onPressed: isLoading
+                              ? null
+                              : () => context.go(RoutePaths.forgotPassword),
                           child: const Text('Forgot password?'),
                         ),
                       ),
                       const SizedBox(height: 8),
-                      AppButton(label: 'Sign in', onPressed: _submit, isLoading: isLoading),
+                      AppButton(
+                        label: 'Sign in',
+                        onPressed: _submit,
+                        isLoading: isLoading,
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: isLoading
+                            ? null
+                            : () => ref
+                                  .read(authControllerProvider.notifier)
+                                  .signInWithGoogle(),
+                        icon: const Icon(Icons.account_circle_outlined),
+                        label: const Text('Continue with Google'),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(52),
+                          shape: const StadiumBorder(),
+                        ),
+                      ),
                       const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text('New to Kharcha?', style: AppTextStyles.caption),
                           TextButton(
-                            onPressed: isLoading ? null : () => context.go(RoutePaths.signup),
+                            onPressed: isLoading
+                                ? null
+                                : () => context.go(RoutePaths.signup),
                             child: const Text('Create an account'),
                           ),
                         ],
