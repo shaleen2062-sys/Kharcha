@@ -25,9 +25,9 @@ async function start() {
   const app = createApp();
 
   const server = app.listen(env.PORT, () => {
-    logger.info(`Kharcha API listening on http://localhost:${env.PORT}`);
+    logger.info(`Kharcha API listening on port ${env.PORT}`);
     logger.info(`ENV: ${env.NODE_ENV} | AUTH_MODE: ${env.AUTH_MODE}`);
-    logger.info(`Health: http://localhost:${env.PORT}/api/health`);
+    logger.info(`Health: ${env.PUBLIC_BASE_URL}/api/health`);
   });
 
   const shutdown = async (signal: string) => {

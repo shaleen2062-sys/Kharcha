@@ -6,3 +6,6 @@ pillow
 pytesseract
 opencv-python-headless
 python-doctr[torch]
+fastapi
+uvicorn[standard]
+python-multipart

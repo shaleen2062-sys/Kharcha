@@ -5,6 +5,7 @@ const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().min(1).max(65535).default(4000),
   PUBLIC_BASE_URL: z.string().default('http://localhost:4000'),
+  CORS_ORIGINS: z.string().default(''),
 
   AUTH_MODE: z.enum(['firebase', 'dev']).default('dev'),
   FIREBASE_PROJECT_ID: z.string().optional(),
@@ -46,6 +47,24 @@ if (parsed.data.NODE_ENV === 'production' && parsed.data.URL_SIGNING_SECRET === 
   console.error('URL_SIGNING_SECRET must be set in production.');
   process.exit(1);
 }
+if (parsed.data.NODE_ENV === 'production') {
+  if (parsed.data.AUTH_MODE !== 'firebase') {
+    console.error('AUTH_MODE=firebase is required in production.');
+    process.exit(1);
+  }
+  if (!parsed.data.FIREBASE_PROJECT_ID || !parsed.data.FIREBASE_CLIENT_EMAIL || !parsed.data.FIREBASE_PRIVATE_KEY) {
+    console.error('Production Firebase Admin credentials are required.');
+    process.exit(1);
+  }
+  if (parsed.data.MONGODB_URI.startsWith('mongodb://127.0.0.1') || parsed.data.MONGODB_URI.startsWith('mongodb://localhost')) {
+    console.error('Production MONGODB_URI must point to a reachable database.');
+    process.exit(1);
+  }
+  if (parsed.data.STORAGE_MODE !== 'supabase') {
+    console.error('STORAGE_MODE=supabase is required in production.');
+    process.exit(1);
+  }
+}
 if (parsed.data.READER === 'http' && !parsed.data.READER_URL) {
   console.error('READER=http needs READER_URL.');
   process.exit(1);
@@ -58,6 +77,7 @@ if (parsed.data.STORAGE_MODE === 'supabase' && (!parsed.data.SUPABASE_URL || !pa
 export const env = {
   ...parsed.data,
   FIREBASE_PRIVATE_KEY: parsed.data.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  CORS_ORIGINS: parsed.data.CORS_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean),
 };
 
 export type Env = typeof env;

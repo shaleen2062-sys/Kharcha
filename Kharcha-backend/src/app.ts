@@ -12,7 +12,7 @@ export function createApp() {
 
   app.use(
     cors({
-      origin: env.NODE_ENV === 'production' ? [] : true,
+      origin: env.NODE_ENV === 'production' ? env.CORS_ORIGINS : true,
       credentials: true,
     }),
   );
