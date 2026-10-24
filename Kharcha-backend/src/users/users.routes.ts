@@ -4,7 +4,6 @@ import { requireAuth } from '../middleware/auth.middleware';
 import { asyncHandler } from '../utils/asyncHandler';
 import { validate } from '../middleware/validate';
 import { ApiError } from '../utils/ApiError';
-import { CURRENCIES } from './user.model';
 import { getUser, updateUser, softDeleteUser } from './users.service';
 
 const router = Router();
@@ -23,9 +22,13 @@ router.get(
 const updateSchema = z.object({
   name: z.string().trim().min(1).max(80).optional(),
   photoUrl: z.string().url().nullable().optional(),
-  currency: z.enum(CURRENCIES).optional(),
+  currency: z.literal('NPR').optional(),
   aiEnabled: z.boolean().optional(),
   onboardingCompleted: z.boolean().optional(),
+  alertPercent: z.number().int().min(50).max(100).optional(),
+  notificationsEnabled: z.boolean().optional(),
+  monthlyIncome: z.number().min(0).max(1e9).nullable().optional(),
+  totalBudget: z.number().min(0).max(1e9).nullable().optional(),
 });
 
 router.patch(

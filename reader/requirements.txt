@@ -1,0 +1,8 @@
+scikit-learn==1.6.1
+joblib
+scipy
+numpy
+pillow
+pytesseract
+opencv-python-headless
+python-doctr[torch]

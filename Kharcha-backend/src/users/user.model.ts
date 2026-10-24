@@ -12,6 +12,11 @@ const userSchema = new Schema(
     currency: { type: String, enum: CURRENCIES, default: 'NPR' },
     aiEnabled: { type: Boolean, default: true },
     onboardingCompleted: { type: Boolean, default: false },
+    // Added for budgets/alerts: warn when a category reaches this % of its limit
+    alertPercent: { type: Number, min: 50, max: 100, default: 80 },
+    notificationsEnabled: { type: Boolean, default: true },
+    monthlyIncome: { type: Number, min: 0, default: null },
+    totalBudget: { type: Number, min: 0, default: null },
     lastLoginAt: { type: Date, default: null },
     deletedAt: { type: Date, default: null },
   },

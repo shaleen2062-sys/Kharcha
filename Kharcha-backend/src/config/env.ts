@@ -12,6 +12,26 @@ const schema = z.object({
   FIREBASE_PRIVATE_KEY: z.string().optional(),
 
   MONGODB_URI: z.string().default('mongodb://127.0.0.1:27017/kharcha'),
+
+  // What "this month" means for dashboards and budgets
+  APP_TZ: z.string().default('Asia/Kathmandu'),
+
+  // Receipt photo storage: local disk (dev) or Supabase Storage (production)
+  STORAGE_MODE: z.enum(['local', 'supabase', 'memory']).default('local'),
+  UPLOAD_DIR: z.string().default('./uploads'),
+  MAX_UPLOAD_MB: z.coerce.number().positive().default(10),
+  URL_SIGNING_SECRET: z.string().default('dev-only-change-me'),
+  IMAGE_URL_TTL_SECONDS: z.coerce.number().int().positive().default(3600),
+  SUPABASE_URL: z.string().optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  SUPABASE_BUCKET: z.string().default('receipts'),
+
+  // The AI reader (see ../reader). manual = user types the receipt in.
+  READER: z.enum(['manual', 'http']).default('manual'),
+  READER_URL: z.string().optional(),
+  READER_TOKEN: z.string().optional(),
+  READER_TIMEOUT_MS: z.coerce.number().int().positive().default(120000),
+  READER_MIN_CONFIDENCE: z.coerce.number().min(0).max(1).default(0.7),
 });
 
 const parsed = schema.safeParse(process.env);
@@ -19,6 +39,19 @@ const parsed = schema.safeParse(process.env);
 if (!parsed.success) {
   console.error('Invalid environment variables:');
   console.error(parsed.error.flatten().fieldErrors);
+  process.exit(1);
+}
+
+if (parsed.data.NODE_ENV === 'production' && parsed.data.URL_SIGNING_SECRET === 'dev-only-change-me') {
+  console.error('URL_SIGNING_SECRET must be set in production.');
+  process.exit(1);
+}
+if (parsed.data.READER === 'http' && !parsed.data.READER_URL) {
+  console.error('READER=http needs READER_URL.');
+  process.exit(1);
+}
+if (parsed.data.STORAGE_MODE === 'supabase' && (!parsed.data.SUPABASE_URL || !parsed.data.SUPABASE_SERVICE_ROLE_KEY)) {
+  console.error('STORAGE_MODE=supabase needs SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.');
   process.exit(1);
 }
 
