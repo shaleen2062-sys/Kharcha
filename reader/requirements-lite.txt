@@ -1,0 +1,11 @@
+# Same as requirements.txt but without docTR/PyTorch (about 2 GB smaller). OCR is Tesseract only: use OCR_ENGINE=tesseract.
+scikit-learn==1.6.1
+joblib
+scipy
+numpy
+pillow
+pytesseract
+opencv-python-headless
+fastapi
+uvicorn[standard]
+python-multipart

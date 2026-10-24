@@ -45,6 +45,10 @@ export type UserPatch = Partial<
     | 'currency'
     | 'aiEnabled'
     | 'onboardingCompleted'
+    | 'alertPercent'
+    | 'notificationsEnabled'
+    | 'monthlyIncome'
+    | 'totalBudget'
   >
 >;
 

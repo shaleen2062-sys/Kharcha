@@ -3,24 +3,31 @@ import { connectDB, disconnectDB } from './config/db';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 import { getFirebaseAuth } from './config/firebase';
+import { requeueStuck } from './agents/processReceipt';
 
 async function start() {
   await connectDB();
 
-  try {
-    getFirebaseAuth();
-    logger.info('Firebase Admin initialized');
-  } catch (err: any) {
-    logger.error({ err }, 'Firebase Admin failed to initialize');
-    process.exit(1);
+  // Firebase is only needed (and only configured) in AUTH_MODE=firebase. In dev mode getFirebaseAuth() throws.
+  if (env.AUTH_MODE === 'firebase') {
+    try {
+      getFirebaseAuth();
+      logger.info('Firebase Admin initialized');
+    } catch (err: any) {
+      logger.error({ err }, 'Firebase Admin failed to initialize');
+      process.exit(1);
+    }
   }
+
+  const resumed = await requeueStuck();
+  if (resumed > 0) logger.info(`Re-reading ${resumed} receipt(s) left unfinished by the last run`);
 
   const app = createApp();
 
   const server = app.listen(env.PORT, () => {
-    logger.info(`Kharcha API listening on http://localhost:${env.PORT}`);
+    logger.info(`Kharcha API listening on port ${env.PORT}`);
     logger.info(`ENV: ${env.NODE_ENV} | AUTH_MODE: ${env.AUTH_MODE}`);
-    logger.info(`Health: http://localhost:${env.PORT}/health`);
+    logger.info(`Health: ${env.PUBLIC_BASE_URL}/api/health`);
   });
 
   const shutdown = async (signal: string) => {

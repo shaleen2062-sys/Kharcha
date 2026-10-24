@@ -1,0 +1,18 @@
+services:
+  reader:
+    build:
+      context: ./reader
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+
+  backend:
+    build:
+      context: ./Kharcha-backend
+    depends_on:
+      - reader
+    env_file:
+      - .env
+    ports:
+      - "4000:4000"
