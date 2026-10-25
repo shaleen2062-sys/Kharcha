@@ -7,10 +7,6 @@ const List<String> receiptCategories = [
   'Health',
   'Bills',
   'Entertainment',
-  'Rent',
-  'Education',
-  'Travel',
-  'Personal Care',
   'Other',
 ];
 

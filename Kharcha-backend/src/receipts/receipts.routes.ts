@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { Types } from 'mongoose';
 import { requireAuth } from '../middleware/auth.middleware';
-import { receiveImage } from '../middleware/upload.middleware';
+import { receiveImage, receiveRawImage } from '../middleware/upload.middleware';
 import { asyncHandler } from '../utils/asyncHandler';
 import { validate } from '../middleware/validate';
 import { ApiError } from '../utils/ApiError';
@@ -33,6 +33,21 @@ router.post(
       idempotencyKey: req.get('Idempotency-Key') || undefined,
     });
     res.status(created ? 202 : 200).json({ receipt: await presentOne(uid(req), receipt) });
+  }),
+);
+
+// Raw JPEG upload for mobile clients; the multipart endpoint above remains supported.
+router.post(
+  '/raw',
+  receiveRawImage,
+  asyncHandler(async (req, res) => {
+    const { receipt, created } = await createFromUpload(uid(req), {
+      buffer: req.body as Buffer,
+      idempotencyKey: req.get('Idempotency-Key') || undefined,
+    });
+    res.status(created ? 202 : 200).json({
+      receipt: await presentOne(uid(req), receipt),
+    });
   }),
 );
 

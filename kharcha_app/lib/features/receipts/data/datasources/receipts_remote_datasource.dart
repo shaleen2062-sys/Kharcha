@@ -21,16 +21,28 @@ class DioReceiptRemoteDataSource implements ReceiptRemoteDataSource {
 
   @override
   Future<Receipt> upload(Uint8List jpeg, {String? idempotencyKey}) async {
-    final form = FormData.fromMap({
-      'image': MultipartFile.fromBytes(jpeg, filename: 'receipt.jpg'),
-    });
     final data = await _send(
       () => _dio.post<Object?>(
-        ApiEndpoints.receipts,
-        data: form,
+        ApiEndpoints.rawReceipts,
+        data: jpeg,
         options: idempotencyKey == null
-            ? null
-            : Options(headers: {'Idempotency-Key': idempotencyKey}),
+            ? Options(
+                sendTimeout: const Duration(seconds: 120),
+                receiveTimeout: const Duration(seconds: 120),
+                headers: {
+                  'Content-Type': 'image/jpeg',
+                  'Content-Length': jpeg.length,
+                },
+              )
+            : Options(
+                sendTimeout: const Duration(seconds: 120),
+                receiveTimeout: const Duration(seconds: 120),
+                headers: {
+                  'Idempotency-Key': idempotencyKey,
+                  'Content-Type': 'image/jpeg',
+                  'Content-Length': jpeg.length,
+                },
+              ),
       ),
     );
     return ReceiptModel.fromJson(_receiptOf(data));

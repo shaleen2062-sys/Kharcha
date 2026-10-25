@@ -14,7 +14,7 @@ import { itemsSum } from '../src/utils/money';
 import { env } from '../src/config/env';
 
 const STORES: Array<{ merchant: string; items: Array<[string, number, number, string]> }> = [
-  { merchant: 'Bhat-Bhateni Supermarket', items: [['Rice 5kg', 850, 1, 'Groceries'], ['Milk 1L', 110, 2, 'Groceries'], ['Eggs (tray)', 420, 1, 'Groceries'], ['Shampoo', 380, 1, 'Personal Care']] },
+  { merchant: 'Bhat-Bhateni Supermarket', items: [['Rice 5kg', 850, 1, 'Groceries'], ['Milk 1L', 110, 2, 'Groceries'], ['Eggs (tray)', 420, 1, 'Groceries'], ['Shampoo', 380, 1, 'Shopping']] },
   { merchant: 'Himalayan Java', items: [['Cappuccino', 280, 2, 'Food & Dining'], ['Brownie', 220, 1, 'Food & Dining']] },
   { merchant: 'Pathao', items: [['Ride to Patan', 310, 1, 'Transport']] },
   { merchant: 'Om Pharmacy', items: [['Paracetamol strip', 40, 2, 'Healthcare'], ['Vitamin C', 260, 1, 'Healthcare']] },

@@ -9,6 +9,7 @@ abstract final class ApiEndpoints {
   static const String alertsReadAll = '/api/alerts/read-all';
   static String alertRead(String id) => '/api/alerts/$id/read';
   static const String receipts = '/api/receipts';
+  static const String rawReceipts = '/api/receipts/raw';
   static String receipt(String id) => '/api/receipts/$id';
   static const String dashboardSummary = '/api/dashboard/summary';
   static const String dashboardTrend = '/api/dashboard/trend';

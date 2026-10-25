@@ -7,8 +7,8 @@
 ///   Bills       <-> Utilities
 ///   Other       <-> Other, Uncategorized
 ///
-/// Names that are the same on both sides (Groceries, Transport, Shopping, Entertainment, Rent, Education,
-/// Travel, Personal Care) and custom categories pass through unchanged.
+/// Names that are the same on both sides (Groceries, Transport, Shopping, Entertainment) and custom
+/// categories pass through unchanged.
 abstract final class CategoryNames {
   static const Map<String, String> _toApi = {
     'Dining': 'Food & Dining',

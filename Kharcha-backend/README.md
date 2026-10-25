@@ -24,7 +24,7 @@ Phone or emulator: set `PUBLIC_BASE_URL` to an address the phone can reach (`htt
 src/
   config/        env (zod), db, firebase, supabase
   middleware/    auth, validate, upload (multer), errors
-  users/ categories/            auth + per-user categories (default 12 + fallback)
+  users/ categories/            auth + per-user categories (AI-supported defaults + fallback)
   receipts/      model, routes, service, reader.client (manual | http), schemas
   agents/        processReceipt (pipeline), validation.agent (decides confirm vs review), agentRun (audit log)
   corrections/   remembers the categories a user changed

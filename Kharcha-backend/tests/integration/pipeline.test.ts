@@ -104,8 +104,9 @@ describe('receipt pipeline', () => {
     const got = await request(app).get(`/api/receipts/${up.body.receipt.id}`).set(AUTH);
     expect(got.body.receipt.status).toBe('needs_review');
 
-    const cats = (await request(app).get('/api/categories').set(AUTH)).body.categories as Array<{ id: string; name: string }>;
-    const personal = cats.find((c) => c.name === 'Personal Care')!;
+    const created = await request(app).post('/api/categories').set(AUTH).send({ name: 'Personal Care' });
+    expect(created.status).toBe(201);
+    const personal = created.body.category as { id: string; name: string };
     const saved = await request(app)
       .patch(`/api/receipts/${up.body.receipt.id}`)
       .set(AUTH)

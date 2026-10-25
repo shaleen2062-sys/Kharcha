@@ -110,11 +110,10 @@ describe('category mapping', () => {
     expect(categoryNameFor('Bills', 'Data pack')).toBe('Utilities');
   });
   it('uses keyword rules when the reader says Other or nothing', () => {
-    expect(categoryNameFor('Other', 'Shampoo 200ml')).toBe('Personal Care');
     expect(categoryNameFor(null, 'Petrol')).toBe('Transport');
   });
-  it('personal-care words beat the reader\'s Health label', () => {
-    expect(categoryNameFor('Health', 'Shampoo')).toBe('Personal Care');
+  it('keeps reader-supported categories when keyword rules do not match', () => {
+    expect(categoryNameFor('Health', 'Shampoo')).toBe('Healthcare');
     expect(categoryNameFor('Health', 'Paracetamol')).toBe('Healthcare');
   });
   it('leaves it open when nothing matches', () => {

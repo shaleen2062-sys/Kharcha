@@ -53,6 +53,7 @@ class UploadController extends Notifier<AsyncValue<Receipt?>> {
           if (saved != null) {
             state = const AsyncData<Receipt?>(null);
             await ref.read(pendingCountProvider.notifier).refresh();
+            unawaited(_reconcileQueuedUpload());
             return UploadOutcome.queued;
           }
           state = AsyncError<Receipt?>(
@@ -72,6 +73,18 @@ class UploadController extends Notifier<AsyncValue<Receipt?>> {
         return UploadOutcome.uploaded;
       },
     );
+  }
+
+  Future<void> _reconcileQueuedUpload() async {
+    // A request can time out locally while the server is still receiving it.
+    // Retry the same idempotency key after it has had time to finish; the
+    // server will return the existing receipt instead of creating a duplicate.
+    await Future<void>.delayed(const Duration(seconds: 5));
+    try {
+      await ref.read(pendingCountProvider.notifier).sync();
+    } catch (_) {
+      // The queue remains visible for the banner's manual retry.
+    }
   }
 }
 
