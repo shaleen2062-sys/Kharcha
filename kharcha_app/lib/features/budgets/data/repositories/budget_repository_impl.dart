@@ -65,10 +65,11 @@ class BudgetRepositoryImpl implements BudgetRepository {
     } on ServerException catch (e) {
       final code = e.statusCode;
       if (code == null) return const Left(NetworkFailure());
-      if (code == 401)
+      if (code == 401) {
         return const Left(
           AuthFailure('Your session expired. Please sign in again.'),
         );
+      }
       return Left(
         e.message == null
             ? const ServerFailure.generic()

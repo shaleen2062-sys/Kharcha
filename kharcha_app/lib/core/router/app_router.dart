@@ -29,9 +29,15 @@ import 'package:kharcha_app/features/receipts/presentation/pages/review_page.dar
 final routerProvider = Provider<GoRouter>((ref) {
   // Re-run the redirect whenever the signed-in user changes.
   final refresh = ValueNotifier<int>(0);
-  ref.listen<AsyncValue<AppUser?>>(authStateProvider, (_, __) => refresh.value++);
+  ref.listen<AsyncValue<AppUser?>>(
+    authStateProvider,
+    (_, _) => refresh.value++,
+  );
   // ...and whenever the profile loads or changes (finishing onboarding sets it).
-  ref.listen<AsyncValue<UserProfile>>(profileProvider, (_, __) => refresh.value++);
+  ref.listen<AsyncValue<UserProfile>>(
+    profileProvider,
+    (_, _) => refresh.value++,
+  );
   ref.onDispose(refresh.dispose);
 
   final router = GoRouter(
@@ -82,34 +88,42 @@ final routerProvider = Provider<GoRouter>((ref) {
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => AppShell(shell: shell),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: RoutePaths.home,
-              name: RouteNames.home,
-              builder: (context, state) => const DashboardPage(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: RoutePaths.review,
-              name: RouteNames.review,
-              builder: (context, state) => const ReviewPage(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: RoutePaths.budgets,
-              name: RouteNames.budgets,
-              builder: (context, state) => const BudgetsPage(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: RoutePaths.insights,
-              name: RouteNames.insights,
-              builder: (context, state) => const InsightsPage(),
-            ),
-          ]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.home,
+                name: RouteNames.home,
+                builder: (context, state) => const DashboardPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.review,
+                name: RouteNames.review,
+                builder: (context, state) => const ReviewPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.budgets,
+                name: RouteNames.budgets,
+                builder: (context, state) => const BudgetsPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.insights,
+                name: RouteNames.insights,
+                builder: (context, state) => const InsightsPage(),
+              ),
+            ],
+          ),
         ],
       ),
       ...scannerRoutes(),
@@ -121,17 +135,20 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.receiptDetail,
         name: RouteNames.receiptDetail,
-        builder: (context, state) => ReceiptDetailPage(id: state.pathParameters['id']!),
+        builder: (context, state) =>
+            ReceiptDetailPage(id: state.pathParameters['id']!),
       ),
       GoRoute(
         path: RoutePaths.receiptPhoto,
         name: RouteNames.receiptPhoto,
-        builder: (context, state) => ReceiptPhotoPage(id: state.pathParameters['id']!),
+        builder: (context, state) =>
+            ReceiptPhotoPage(id: state.pathParameters['id']!),
       ),
       GoRoute(
         path: RoutePaths.receiptEdit,
         name: RouteNames.receiptEdit,
-        builder: (context, state) => ReceiptEditPage(id: state.pathParameters['id']!),
+        builder: (context, state) =>
+            ReceiptEditPage(id: state.pathParameters['id']!),
       ),
     ],
   );

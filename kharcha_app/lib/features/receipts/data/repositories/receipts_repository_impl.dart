@@ -98,18 +98,21 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     } on ServerException catch (e) {
       final code = e.statusCode;
       if (code == null) return const Left(NetworkFailure());
-      if (code == 401)
+      if (code == 401) {
         return const Left(
           AuthFailure('Your session expired. Please sign in again.'),
         );
-      if (code == 404)
+      }
+      if (code == 404) {
         return Left(
           ServerFailure('That receipt was not found.', statusCode: code),
         );
-      if (code == 413)
+      }
+      if (code == 413) {
         return Left(
           ServerFailure('The photo is too large to upload.', statusCode: code),
         );
+      }
       return Left(
         e.message == null
             ? ServerFailure.generic(statusCode: code)

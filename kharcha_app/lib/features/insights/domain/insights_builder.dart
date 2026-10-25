@@ -51,73 +51,105 @@ InsightsReport buildInsights({
 
   if (over.length == 1) {
     final b = over.first;
-    alerts.add(InsightAlert(
-      level: InsightLevel.danger,
-      title: '${b.category} is over budget',
-      body: '${formatMoneyShort(b.spent, b.currency)} spent against a ${formatMoneyShort(b.limit, b.currency)} limit.',
-      target: InsightTarget.budgets,
-    ));
+    alerts.add(
+      InsightAlert(
+        level: InsightLevel.danger,
+        title: '${b.category} is over budget',
+        body:
+            '${formatMoneyShort(b.spent, b.currency)} spent against a ${formatMoneyShort(b.limit, b.currency)} limit.',
+        target: InsightTarget.budgets,
+      ),
+    );
   } else if (over.length > 1) {
-    alerts.add(InsightAlert(
-      level: InsightLevel.danger,
-      title: '${over.length} categories are over budget',
-      body: over.map((b) => b.category).join(', ') + '.',
-      target: InsightTarget.budgets,
-    ));
+    alerts.add(
+      InsightAlert(
+        level: InsightLevel.danger,
+        title: '${over.length} categories are over budget',
+        body: '${over.map((b) => b.category).join(', ')}.',
+        target: InsightTarget.budgets,
+      ),
+    );
   }
 
-  final needReview = receipts.where((r) => r.status == ReceiptStatus.needsReview).length;
+  final needReview = receipts
+      .where((r) => r.status == ReceiptStatus.needsReview)
+      .length;
   if (needReview > 0) {
-    alerts.add(InsightAlert(
-      level: InsightLevel.warning,
-      title: needReview == 1 ? '1 receipt needs review' : '$needReview receipts need review',
-      body: 'They do not count towards your budgets until you approve them.',
-      target: InsightTarget.review,
-    ));
+    alerts.add(
+      InsightAlert(
+        level: InsightLevel.warning,
+        title: needReview == 1
+            ? '1 receipt needs review'
+            : '$needReview receipts need review',
+        body: 'They do not count towards your budgets until you approve them.',
+        target: InsightTarget.review,
+      ),
+    );
   }
 
   for (final group in _duplicateGroups(receipts).take(2)) {
     final first = group.first;
-    alerts.add(InsightAlert(
-      level: InsightLevel.warning,
-      title: 'Possible duplicate receipt',
-      body: '${group.length == 2 ? 'Two' : '${group.length}'} ${first.title} receipts for '
-          '${formatMoneyShort(first.total, first.currency)} on ${formatDate(first.date)}. Check them in My receipts.',
-      target: InsightTarget.receipts,
-    ));
+    alerts.add(
+      InsightAlert(
+        level: InsightLevel.warning,
+        title: 'Possible duplicate receipt',
+        body:
+            '${group.length == 2 ? 'Two' : '${group.length}'} ${first.title} receipts for '
+            '${formatMoneyShort(first.total, first.currency)} on ${formatDate(first.date)}. Check them in My receipts.',
+        target: InsightTarget.receipts,
+      ),
+    );
   }
 
   if (near.isNotEmpty) {
     final names = near.map((b) => b.category).toList();
     final percents = near.map((b) => '${(b.ratio * 100).round()}%').toList();
-    alerts.add(InsightAlert(
-      level: InsightLevel.warning,
-      title: names.length == 1 ? '${names.first} is near its limit' : '${_joinNames(names)} are near their limits',
-      body: 'At ${_joinNames(percents)} with $daysLeftText to go.',
-      target: InsightTarget.budgets,
-    ));
+    alerts.add(
+      InsightAlert(
+        level: InsightLevel.warning,
+        title: names.length == 1
+            ? '${names.first} is near its limit'
+            : '${_joinNames(names)} are near their limits',
+        body: 'At ${_joinNames(percents)} with $daysLeftText to go.',
+        target: InsightTarget.budgets,
+      ),
+    );
   }
 
-  return InsightsReport(alerts: alerts, points: _points(budgets, over, summary, now));
+  return InsightsReport(
+    alerts: alerts,
+    points: _points(budgets, over, summary, now),
+  );
 }
 
-List<String> _points(List<Budget> budgets, List<Budget> over, DashboardSummary? summary, DateTime now) {
+List<String> _points(
+  List<Budget> budgets,
+  List<Budget> over,
+  DashboardSummary? summary,
+  DateTime now,
+) {
   if (summary == null || summary.isEmpty) return const [];
   final points = <String>[];
 
   final top = summary.topCategories;
   if (top.isNotEmpty && summary.total > 0) {
     final share = (top.first.amount / summary.total * 100).round();
-    points.add('${top.first.category} is your biggest category, about $share% of everything spent.');
+    points.add(
+      '${top.first.category} is your biggest category, about $share% of everything spent.',
+    );
   }
 
   final change = summary.changePercent;
   if (change != null && change.abs() >= 1) {
-    points.add('Spending is ${change > 0 ? 'up' : 'down'} ${change.abs().round()}% compared with last month.');
+    points.add(
+      'Spending is ${change > 0 ? 'up' : 'down'} ${change.abs().round()}% compared with last month.',
+    );
   }
 
   if (over.length == 1) {
-    points.add('${over.first.category} is the only category already over its budget.');
+    points.add(
+      '${over.first.category} is the only category already over its budget.',
+    );
   } else if (over.length > 1) {
     points.add('${over.length} categories are already over their budgets.');
   } else if (budgets.isNotEmpty) {
@@ -125,7 +157,9 @@ List<String> _points(List<Budget> budgets, List<Budget> over, DashboardSummary? 
   }
 
   if (now.day > 0 && summary.total > 0) {
-    points.add('You are spending about ${formatMoneyShort(summary.total / now.day, summary.currency)} a day so far.');
+    points.add(
+      'You are spending about ${formatMoneyShort(summary.total / now.day, summary.currency)} a day so far.',
+    );
   }
   return points;
 }
@@ -135,9 +169,13 @@ List<String> _points(List<Budget> budgets, List<Budget> over, DashboardSummary? 
 List<List<Receipt>> _duplicateGroups(List<Receipt> receipts) {
   final groups = <String, List<Receipt>>{};
   for (final r in receipts) {
-    if (r.status == ReceiptStatus.processing || r.status == ReceiptStatus.failed) continue;
+    if (r.status == ReceiptStatus.processing ||
+        r.status == ReceiptStatus.failed) {
+      continue;
+    }
     if (r.merchant == null || r.total == null || r.date == null) continue;
-    final key = '${r.merchant!.trim().toLowerCase()}|${r.total!.toStringAsFixed(2)}|'
+    final key =
+        '${r.merchant!.trim().toLowerCase()}|${r.total!.toStringAsFixed(2)}|'
         '${r.date!.year}-${r.date!.month}-${r.date!.day}';
     groups.putIfAbsent(key, () => []).add(r);
   }

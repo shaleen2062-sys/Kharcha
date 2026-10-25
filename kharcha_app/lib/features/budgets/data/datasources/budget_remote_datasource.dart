@@ -44,7 +44,7 @@ class DioBudgetRemoteDataSource implements BudgetRemoteDataSource {
       () async => _dio.put<Object?>(
         ApiEndpoints.budget(await _categories.idFor(category)),
         // effectiveFrom: the limit applies from this month on; earlier months keep theirs.
-        data: {'limit': limit, if (month != null) 'effectiveFrom': month},
+        data: {'limit': limit, 'effectiveFrom': ?month},
       ),
     );
     if (data is Map<String, dynamic>) {

@@ -46,8 +46,9 @@ class DemoReceiptRepository implements ReceiptRepository {
   Future<Either<Failure, Receipt>> get(String id) async {
     await _latency();
     final found = _store.byId(id);
-    if (found == null)
+    if (found == null) {
       return const Left(ServerFailure('Receipt not found.', statusCode: 404));
+    }
     return Right(found);
   }
 

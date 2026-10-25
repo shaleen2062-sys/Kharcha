@@ -236,7 +236,7 @@ class _Header extends StatelessWidget {
                       width: 64,
                       height: 84,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
+                      errorBuilder: (_, _, _) =>
                           const Icon(Icons.receipt_long_outlined),
                     ),
                   ),

@@ -120,10 +120,11 @@ class DemoStore {
     final list = <Budget>[];
     for (final category in _limits.keys) {
       final limit = limitFor(category, key);
-      if (limit != null)
+      if (limit != null) {
         list.add(
           Budget(category: category, limit: limit, spent: spent[category] ?? 0),
         );
+      }
     }
     // Keep the same order as the category list.
     list.sort(
@@ -212,8 +213,9 @@ class DemoStore {
   Iterable<Receipt> _confirmedIn(String key) => _receipts.where((r) {
     if (r.status != ReceiptStatus.confirmed) return false;
     final d = r.date;
-    if (d == null)
+    if (d == null) {
       return key == _currentKey; // an undated receipt counts for now
+    }
     return monthKey(d) == key;
   });
 

@@ -44,14 +44,15 @@ class AlertsPage extends ConsumerWidget {
             ? const EmptyState(
                 icon: Icons.notifications_none_rounded,
                 title: 'No alerts',
-                message: 'You will be told here when a budget is close to its limit.',
+                message:
+                    'You will be told here when a budget is close to its limit.',
               )
             : RefreshIndicator(
                 onRefresh: () => ref.refresh(alertsProvider.future),
                 child: ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: state.alerts.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
                   itemBuilder: (context, i) => _AlertTile(state.alerts[i]),
                 ),
               ),
@@ -67,10 +68,22 @@ class _AlertTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final (icon, color) = switch (alert.kind) {
-      AlertKind.budgetExceeded => (Icons.error_outline_rounded, AppColors.dangerInk),
-      AlertKind.budgetWarning => (Icons.warning_amber_rounded, AppColors.amberInk),
-      AlertKind.possibleDuplicate => (Icons.copy_all_rounded, AppColors.amberInk),
-      AlertKind.needsReview => (Icons.fact_check_outlined, AppColors.primarySoftInk),
+      AlertKind.budgetExceeded => (
+        Icons.error_outline_rounded,
+        AppColors.dangerInk,
+      ),
+      AlertKind.budgetWarning => (
+        Icons.warning_amber_rounded,
+        AppColors.amberInk,
+      ),
+      AlertKind.possibleDuplicate => (
+        Icons.copy_all_rounded,
+        AppColors.amberInk,
+      ),
+      AlertKind.needsReview => (
+        Icons.fact_check_outlined,
+        AppColors.primarySoftInk,
+      ),
       AlertKind.other => (Icons.notifications_none_rounded, AppColors.muted),
     };
     return Material(
@@ -89,7 +102,10 @@ class _AlertTile extends ConsumerWidget {
         },
         child: Container(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(border: Border.all(color: AppColors.line), borderRadius: BorderRadius.circular(16)),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.line),
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -98,7 +114,10 @@ class _AlertTile extends ConsumerWidget {
               Expanded(
                 child: Text(
                   alert.message,
-                  style: TextStyle(color: AppColors.ink, fontWeight: alert.read ? FontWeight.w400 : FontWeight.w700),
+                  style: TextStyle(
+                    color: AppColors.ink,
+                    fontWeight: alert.read ? FontWeight.w400 : FontWeight.w700,
+                  ),
                 ),
               ),
               if (!alert.read)
@@ -106,7 +125,10 @@ class _AlertTile extends ConsumerWidget {
                   width: 8,
                   height: 8,
                   margin: const EdgeInsets.only(top: 6),
-                  decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
                 ),
             ],
           ),

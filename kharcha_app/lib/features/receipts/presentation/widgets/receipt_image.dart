@@ -30,7 +30,9 @@ class ReceiptImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final url = receipt.imageUrl;
-    if (url == null || url.isEmpty) return const _Placeholder(icon: Icons.receipt_long_outlined);
+    if (url == null || url.isEmpty) {
+      return const _Placeholder(icon: Icons.receipt_long_outlined);
+    }
     if (url.startsWith(demoImageScheme)) {
       return FittedBox(
         fit: fit,
@@ -45,8 +47,9 @@ class ReceiptImage extends StatelessWidget {
       cacheKey: 'receipt-${receipt.id}',
       fit: fit,
       alignment: alignment,
-      placeholder: (_, __) => const _Placeholder(),
-      errorWidget: (_, __, ___) => const _Placeholder(icon: Icons.broken_image_outlined),
+      placeholder: (_, _) => const _Placeholder(),
+      errorWidget: (_, _, _) =>
+          const _Placeholder(icon: Icons.broken_image_outlined),
     );
   }
 }
@@ -62,7 +65,14 @@ class _Placeholder extends StatelessWidget {
       color: AppColors.track,
       child: Center(
         child: icon == null
-            ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
+            ? SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
+              )
             : Icon(icon, color: AppColors.muted),
       ),
     );
@@ -77,24 +87,47 @@ class GeneratedReceipt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const mono = TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.35, color: Color(0xFF222222));
-    const bold = TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.35, color: Color(0xFF222222), fontWeight: FontWeight.w700);
+    const mono = TextStyle(
+      fontFamily: 'monospace',
+      fontSize: 12,
+      height: 1.35,
+      color: Color(0xFF222222),
+    );
+    const bold = TextStyle(
+      fontFamily: 'monospace',
+      fontSize: 12,
+      height: 1.35,
+      color: Color(0xFF222222),
+      fontWeight: FontWeight.w700,
+    );
 
     Widget line(String left, String right, {TextStyle style = mono}) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 1),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: Text(left, style: style, maxLines: 2, overflow: TextOverflow.ellipsis)),
-              const SizedBox(width: 8),
-              Text(right, style: style),
-            ],
+      padding: const EdgeInsets.symmetric(vertical: 1),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(
+              left,
+              style: style,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-        );
+          const SizedBox(width: 8),
+          Text(right, style: style),
+        ],
+      ),
+    );
 
     const rule = Padding(
       padding: EdgeInsets.symmetric(vertical: 6),
-      child: Text('- - - - - - - - - - - - - - - - - - -', style: mono, maxLines: 1, overflow: TextOverflow.clip),
+      child: Text(
+        '- - - - - - - - - - - - - - - - - - -',
+        style: mono,
+        maxLines: 1,
+        overflow: TextOverflow.clip,
+      ),
     );
 
     final currency = receipt.currency;
@@ -102,19 +135,37 @@ class GeneratedReceipt extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(18, 20, 18, 22),
       decoration: const BoxDecoration(
         color: Color(0xFFFDFCF7),
-        boxShadow: [BoxShadow(color: Color(0x22000000), blurRadius: 6, offset: Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x22000000),
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(receipt.title.toUpperCase(), textAlign: TextAlign.center, style: bold.copyWith(fontSize: 15)),
+          Text(
+            receipt.title.toUpperCase(),
+            textAlign: TextAlign.center,
+            style: bold.copyWith(fontSize: 15),
+          ),
           const SizedBox(height: 2),
           Text('Kathmandu, Nepal', textAlign: TextAlign.center, style: mono),
-          if (receipt.date != null) Text(formatDate(receipt.date), textAlign: TextAlign.center, style: mono),
+          if (receipt.date != null)
+            Text(
+              formatDate(receipt.date),
+              textAlign: TextAlign.center,
+              style: mono,
+            ),
           rule,
           if (receipt.items.isEmpty)
-            const Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Text('. . .', textAlign: TextAlign.center, style: mono))
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: Text('. . .', textAlign: TextAlign.center, style: mono),
+            )
           else
             for (final i in receipt.items)
               line(
@@ -122,9 +173,17 @@ class GeneratedReceipt extends StatelessWidget {
                 (i.price * i.quantity).toStringAsFixed(2),
               ),
           rule,
-          line('TOTAL', '$currency ${(receipt.total ?? receipt.itemsSum).toStringAsFixed(2)}', style: bold),
+          line(
+            'TOTAL',
+            '$currency ${(receipt.total ?? receipt.itemsSum).toStringAsFixed(2)}',
+            style: bold,
+          ),
           const SizedBox(height: 8),
-          Text('Thank you, visit again', textAlign: TextAlign.center, style: mono),
+          Text(
+            'Thank you, visit again',
+            textAlign: TextAlign.center,
+            style: mono,
+          ),
         ],
       ),
     );

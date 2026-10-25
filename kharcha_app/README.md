@@ -1,7 +1,8 @@
 # Kharcha app (Flutter)
 
 Riverpod 3 + go_router + Dio + Firebase Auth. Clean architecture per feature: `data/` (Dio, JSON), `domain/` (entities, use cases, repository interfaces), `presentation/` (pages, providers).
-This folder holds `lib/`, `test/`, `pubspec.yaml`, `firebase.json`: copy them into your Flutter project (the one that has `android/`, `ios/`, `web/`). `lib/firebase_options.dart` is yours and was not touched.
+This folder contains the Flutter client, tests, `pubspec.yaml`, and Firebase
+configuration.
 
 ## Run
 ```bash
@@ -27,7 +28,8 @@ Native setup the scanner needs (not in `lib/`): **Android** `<uses-permission an
 `profile` onboarding and settings.
 
 ## How it talks to the backend
-- Paths: `lib/core/network/api_endpoints.dart`; contract: `../backend/docs/api-contract.md`.
+- Paths: `lib/core/network/api_endpoints.dart`; contract:
+  `../Kharcha-backend/docs/api-contract.md`.
 - The screens use eight short category names (Dining, Health, Bills ...). The backend's defaults are named differently
   (Food & Dining, Healthcare, Utilities ...). `lib/core/network/category_names.dart` translates at the network edge only.
 - Budgets are keyed by category id on the server; `category_directory.dart` looks the id up from the category name.

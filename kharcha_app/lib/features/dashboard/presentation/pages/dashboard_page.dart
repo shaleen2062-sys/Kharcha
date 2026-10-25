@@ -33,7 +33,8 @@ class DashboardPage extends ConsumerWidget {
     ref.invalidate(budgetsForMonthProvider);
     ref.invalidate(receiptsProvider);
     ref.invalidate(currentSummaryProvider);
-    await ref.refresh(dashboardSummaryProvider.future);
+    ref.invalidate(dashboardSummaryProvider);
+    await ref.read(dashboardSummaryProvider.future);
   }
 
   @override
