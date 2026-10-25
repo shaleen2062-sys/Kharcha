@@ -26,12 +26,16 @@ _NUM_AT_END = re.compile(rf"(?<![\w.,/-])({_NUM})\s*(?:/-|-)?\s*$")
 _ANY_NUM = re.compile(rf"(?<![\w.,/-])({_NUM})(?![\w/-]*\d)")
 _CURRENCY = re.compile(r"(?i)\b(?:rs|npr|inr|usd)\b\.?|रु\.?|₹|\$")
 
-# Lines containing these are never items.
+# Lines containing these are never items. 
 _NOT_ITEM = re.compile(
-    r"(?i)sub\s*-?\s*total|\b(?:total|grand|gross|tax(?:able)?|vat|service|discount|change|cash|tender|paid|balance|amount|"
-    r"round(?:ing|ed)?|card|visa|qr|tip|invoice|table|date|earned|points?|savings?|qty|cashier|counter)s?\b|\btime\s*:|bill\s*no|\bpan\b|\bphone\b|\btel\b|"
+    r"(?i)sub\s*-?\s*total|\b(?:total|grand|gross|tax(?:able)?|vat|discount|change|cash|tender|paid|balance|amount|"
+    r"round(?:ing|ed)?|qr|tip|invoice|date|earned|points?|savings?|qty|cashier|counter)s?\b|\btime\s*:|bill\s*no|\bpan\b|\btel\b|"
+    # words that are ALSO part of real item names (phone cover, card holder, table lamp, bike service) only count as labels in label-shaped lines:
+    r"\bservice\s*(?:charge|tax|fee)s?\b|\btable\s*(?:no\.?|#|number)?\s*[:.\-]?\s*\d|"
+    r"\bphone\s*(?:no\.?|number|#)?\s*[:.\-]?\s*[\d+(]|"
+    r"\b(?:credit|debit|visa|master)\s*card\b|^\s*card\s*(?:no\.?|number|payment|pay|\*|x{2,}|[:\-]|\d)|\bvisa\b|"
     r"कुल|जम्मा|उप\s*जम्मा|कर|छुट|फिर्ता|नगद|भ्याट|सेवा|रकम|मिति|बिल\s*नं|प्यान"
-)      # whole words only: "Vegetable", "Cashew", "Cardamom" and "Time Pass" are items, "Table 4" and "Cash" are not
+)   # whole words only: "Vegetable", "Cashew", "Cardamom" and "Time Pass" are items, "Table 4" and "Cash" are not
 _TOTAL_WORDS = re.compile(r"(?i)grand\s*total|net\s*(?:amount|total|payable)|amount\s*(?:due|payable)|total|कुल|जम्मा")
 _NOT_TOTAL = re.compile(r"(?i)sub\s*-?\s*total|tax|vat|before|excl|उप\s*जम्मा|कर|भ्याट")
 _STRONG_TOTAL = re.compile(r"(?i)grand|net|payable|due|जम्मा")
