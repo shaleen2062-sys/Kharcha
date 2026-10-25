@@ -25,8 +25,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
     } on ServerException catch (e) {
       if (e.statusCode == null) {
         final raw = await _cache.read(_key);
-        if (raw is Map<String, dynamic>)
+        if (raw is Map<String, dynamic>) {
           return Right(ProfileModel.fromJson(raw));
+        }
       }
       return Left(_failure(e));
     } catch (_) {
@@ -50,8 +51,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Failure _failure(ServerException e) {
     final code = e.statusCode;
     if (code == null) return const NetworkFailure();
-    if (code == 401)
+    if (code == 401) {
       return const AuthFailure('Your session expired. Please sign in again.');
+    }
     return e.message == null
         ? const ServerFailure.generic()
         : ServerFailure(e.message!);

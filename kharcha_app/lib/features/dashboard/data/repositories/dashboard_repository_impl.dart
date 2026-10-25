@@ -21,23 +21,26 @@ class DashboardRepositoryImpl implements DashboardRepository {
   Future<Either<Failure, DashboardSummary>> summary({String? month}) async {
     try {
       final summary = await _remote.summary(month: month);
-      if (month == null)
+      if (month == null) {
         await _cache.write(_key, DashboardSummaryModel.toJson(summary));
+      }
       return Right(summary);
     } on ServerException catch (e) {
       final code = e.statusCode;
       if (code == null) {
         if (month == null) {
           final raw = await _cache.read(_key);
-          if (raw is Map<String, dynamic>)
+          if (raw is Map<String, dynamic>) {
             return Right(DashboardSummaryModel.fromJson(raw));
+          }
         }
         return const Left(NetworkFailure());
       }
-      if (code == 401)
+      if (code == 401) {
         return const Left(
           AuthFailure('Your session expired. Please sign in again.'),
         );
+      }
       return Left(
         e.message == null
             ? const ServerFailure.generic()
@@ -73,10 +76,11 @@ class DashboardRepositoryImpl implements DashboardRepository {
         }
         return const Left(NetworkFailure());
       }
-      if (code == 401)
+      if (code == 401) {
         return const Left(
           AuthFailure('Your session expired. Please sign in again.'),
         );
+      }
       return Left(
         e.message == null
             ? const ServerFailure.generic()

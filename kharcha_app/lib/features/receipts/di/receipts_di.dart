@@ -20,8 +20,9 @@ final receiptRemoteDataSourceProvider = Provider<ReceiptRemoteDataSource>(
 );
 
 final receiptRepositoryProvider = Provider<ReceiptRepository>((ref) {
-  if (Env.useDemoData)
+  if (Env.useDemoData) {
     return DemoReceiptRepository(ref.watch(demoStoreProvider));
+  }
   return ReceiptRepositoryImpl(
     ref.watch(receiptRemoteDataSourceProvider),
     ref.watch(jsonCacheProvider),

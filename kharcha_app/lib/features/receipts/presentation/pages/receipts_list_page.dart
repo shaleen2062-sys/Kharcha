@@ -33,8 +33,9 @@ class _ReceiptsPageState extends ConsumerState<ReceiptsPage> {
 
   void _pollWhileProcessing(List<Receipt> receipts) {
     if (!receipts.any((r) => r.status == ReceiptStatus.processing) ||
-        _pollTimer != null)
+        _pollTimer != null) {
       return;
+    }
     _pollTimer = Timer(const Duration(seconds: 4), () {
       _pollTimer = null;
       if (mounted) ref.invalidate(receiptsProvider);
@@ -103,7 +104,7 @@ class _ReceiptsPageState extends ConsumerState<ReceiptsPage> {
                     child: ListView.separated(
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
                       itemCount: list.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      separatorBuilder: (_, _) => const SizedBox(height: 10),
                       itemBuilder: (context, i) =>
                           _ReceiptTile(receipt: list[i]),
                     ),

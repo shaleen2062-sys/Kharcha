@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:kharcha_app/core/theme/app_colors.dart';
 import 'package:kharcha_app/core/theme/app_text_styles.dart';
-import 'package:kharcha_app/features/profile/domain/entities/user_profile.dart';
 import 'package:kharcha_app/features/profile/presentation/providers/onboarding_draft.dart';
 import 'package:kharcha_app/features/receipts/presentation/widgets/money.dart';
 
@@ -52,8 +51,9 @@ class _AmountFieldState extends State<AmountField> {
   void didUpdateWidget(AmountField old) {
     super.didUpdateWidget(old);
     // Only rewrite the text when it no longer matches, so typing "12." is left alone.
-    if (parseAmount(_controller.text) != widget.value)
+    if (parseAmount(_controller.text) != widget.value) {
       _controller.text = _format(widget.value);
+    }
   }
 
   @override
