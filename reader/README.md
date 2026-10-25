@@ -14,7 +14,7 @@ uvicorn server:app --host 0.0.0.0 --port 8000
 Open <http://localhost:8000/docs>, use **POST /read-file**, choose a bill photo: you get the JSON.
 Or: `curl -X POST --data-binary @bill.jpg -H "Content-Type: image/jpeg" http://localhost:8000/read`
 
-Then in `backend/.env`: `READER=http` and `READER_URL=http://localhost:8000`.
+Then in `Kharcha-backend/.env`: `READER=http` and `READER_URL=http://localhost:8000`.
 
 To inspect the OCR and model decisions in Python or a notebook:
 ```python
