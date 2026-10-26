@@ -1,18 +1,46 @@
 services:
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+
   reader:
-    build:
-      context: ./reader
-    env_file:
-      - .env
+    build: ./reader
+    env_file: .env
     ports:
       - "8000:8000"
+    restart: unless-stopped
 
   backend:
-    build:
-      context: ./Kharcha-backend
-    depends_on:
-      - reader
-    env_file:
-      - .env
+    build: ./Kharcha-backend
+    env_file: .env
+    environment:                      
+      NODE_ENV: development           
+      MONGODB_URI: mongodb://mongo:27017/kharcha
+      STORAGE_MODE: local
+      UPLOAD_DIR: /app/uploads
+      READER: http
+      READER_URL: http://reader:8000
+    volumes:
+      - uploads:/app/uploads
     ports:
       - "4000:4000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      reader:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+  uploads:
